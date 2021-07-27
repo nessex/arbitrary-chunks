@@ -1,5 +1,8 @@
 # arbitrary-chunks
 
+![Crates.io](https://img.shields.io/crates/l/arbitrary-chunks?style=flat-square)
+![Crates.io](https://img.shields.io/crates/v/arbitrary-chunks?style=flat-square)
+
 An iterator that allows specifying an input array of arbitrary chunk-sizes with which to split a vector or array. As with the standard `.chunks()`, this iterator also includes `_mut()`, `_exact()` and `_exact_mut()` variants.
 
 ## Usage
