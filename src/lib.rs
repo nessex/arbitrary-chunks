@@ -14,7 +14,7 @@
 //! let data: Vec<i32> = vec![0, 1, 2, 3, 4];
 //!
 //! let chunked_data: Vec<Vec<i32>> = data
-//!   .arbitrary_chunks(chunks) // or: .arbitrary_chunks_mut(chunks)
+//!   .arbitrary_chunks(chunks)
 //!   .map(|chunk| chunk.to_vec())
 //!   .collect();
 //!
@@ -65,7 +65,7 @@
 //! let data: Vec<i32> = vec![0, 1, 2, 3, 4];
 //!
 //! data
-//!   .arbitrary_chunks(chunks) // or: .arbitrary_chunks_mut(chunks)
+//!   .arbitrary_chunks(chunks)
 //!   .par_bridge()
 //!   .for_each(|chunk| {
 //!     assert!(chunk.len() >= 1 && chunk.len() <= 3);
