@@ -43,7 +43,7 @@
 //!
 //! Each of the regular and exact variants also have their own mutable variants. These allow you to mutably modify slices and vectors in arbitrarily-sized chunks.
 //!
-//! ```skip_test
+//! ```ignore
 //! use arbitrary_chunks::ArbitraryChunks;
 //!
 //! let chunks: Vec<usize> = vec![1, 3, 1];
