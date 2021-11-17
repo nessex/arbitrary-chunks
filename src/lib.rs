@@ -106,12 +106,13 @@ impl<'a, T> Iterator for ArbitraryChunkMut<'a, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let c = self.1.pop()?;
-        if self.0.is_empty() {
-            return None;
-        }
 
         if c == 0 {
             return Some(&mut []);
+        }
+
+        if self.0.is_empty() {
+            return None;
         }
 
         let point = min(c, self.0.len());
@@ -130,12 +131,13 @@ impl<'a, T> Iterator for ArbitraryChunk<'a, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let c = self.1.pop()?;
-        if self.0.is_empty() {
-            return None;
-        }
 
         if c == 0 {
             return Some(&[]);
+        }
+
+        if self.0.is_empty() {
+            return None;
         }
 
         let point = min(c, self.0.len());
@@ -154,12 +156,13 @@ impl<'a, T> Iterator for ArbitraryChunkExactMut<'a, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let c = self.1.pop()?;
-        if self.0.is_empty() || c > self.0.len() {
-            return None;
-        }
 
         if c == 0 {
             return Some(&mut []);
+        }
+
+        if self.0.is_empty() || c > self.0.len() {
+            return None;
         }
 
         let slice = mem::replace(&mut self.0, &mut []);
@@ -183,12 +186,13 @@ impl<'a, T> Iterator for ArbitraryChunkExact<'a, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let c = self.1.pop()?;
-        if self.0.is_empty() || c > self.0.len() {
-            return None;
-        }
 
         if c == 0 {
             return Some(&[]);
+        }
+
+        if self.0.is_empty() || c > self.0.len() {
+            return None;
         }
 
         let slice = mem::replace(&mut self.0, &mut []);
@@ -360,6 +364,74 @@ mod tests {
         assert_eq!(&mut [8i32], iter.next().unwrap());
         assert_eq!(&mut [7i32, 6], iter.next().unwrap());
         assert_eq!(&mut [5i32, 4, 3], iter.next().unwrap());
+        assert_eq!(None, iter.next());
+        assert_eq!(&mut [2i32, 1], iter.remainder());
+    }
+
+    #[test]
+    fn it_accounts_for_trailing_zeros() {
+        let chunks: Vec<usize> = vec![0, 1, 2, 3, 0, 0];
+        let data = vec![8, 7, 6, 5, 4, 3, 2, 1];
+        let chunk_data: Vec<Vec<i32>> = data
+            .arbitrary_chunks(chunks)
+            .map(|chunk| chunk.to_vec())
+            .collect();
+
+        assert_eq!(Vec::<i32>::new(), chunk_data[0]);
+        assert_eq!(vec![8], chunk_data[1]);
+        assert_eq!(vec![7, 6], chunk_data[2]);
+        assert_eq!(vec![5, 4, 3], chunk_data[3]);
+        assert_eq!(Vec::<i32>::new(), chunk_data[4]);
+        assert_eq!(Vec::<i32>::new(), chunk_data[5]);
+        assert_eq!(None, chunk_data.get(6));
+    }
+
+    #[test]
+    fn mut_accounts_for_trailing_zeros() {
+        let chunks: Vec<usize> = vec![0, 1, 2, 3, 0, 0];
+        let mut data = vec![8, 7, 6, 5, 4, 3, 2, 1];
+        let chunk_data: Vec<Vec<i32>> = data
+            .arbitrary_chunks_mut(chunks)
+            .map(|chunk| chunk.to_vec())
+            .collect();
+
+        assert_eq!(Vec::<i32>::new(), chunk_data[0]);
+        assert_eq!(vec![8], chunk_data[1]);
+        assert_eq!(vec![7, 6], chunk_data[2]);
+        assert_eq!(vec![5, 4, 3], chunk_data[3]);
+        assert_eq!(Vec::<i32>::new(), chunk_data[4]);
+        assert_eq!(Vec::<i32>::new(), chunk_data[5]);
+        assert_eq!(None, chunk_data.get(6));
+    }
+
+    #[test]
+    fn exact_accounts_for_trailing_zeros() {
+        let chunks: Vec<usize> = vec![0, 1, 2, 3, 0, 0];
+        let data = vec![8, 7, 6, 5, 4, 3, 2, 1];
+        let mut iter = data.arbitrary_chunks_exact(chunks);
+
+        assert_eq!(&[0i32; 0], iter.next().unwrap());
+        assert_eq!(&[8i32], iter.next().unwrap());
+        assert_eq!(&[7i32, 6], iter.next().unwrap());
+        assert_eq!(&[5i32, 4, 3], iter.next().unwrap());
+        assert_eq!(&[0i32; 0], iter.next().unwrap());
+        assert_eq!(&[0i32; 0], iter.next().unwrap());
+        assert_eq!(None, iter.next());
+        assert_eq!(&[2i32, 1], iter.remainder());
+    }
+
+    #[test]
+    fn exact_mut_accounts_for_trailing_zeros() {
+        let chunks: Vec<usize> = vec![0, 1, 2, 3, 0, 0];
+        let mut data = vec![8, 7, 6, 5, 4, 3, 2, 1];
+        let mut iter = data.arbitrary_chunks_exact_mut(chunks);
+
+        assert_eq!(&mut [0i32; 0], iter.next().unwrap());
+        assert_eq!(&mut [8i32], iter.next().unwrap());
+        assert_eq!(&mut [7i32, 6], iter.next().unwrap());
+        assert_eq!(&mut [5i32, 4, 3], iter.next().unwrap());
+        assert_eq!(&[0i32; 0], iter.next().unwrap());
+        assert_eq!(&[0i32; 0], iter.next().unwrap());
         assert_eq!(None, iter.next());
         assert_eq!(&mut [2i32, 1], iter.remainder());
     }
