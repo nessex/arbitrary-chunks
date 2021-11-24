@@ -99,13 +99,13 @@
 use std::cmp::min;
 use std::mem;
 
-pub struct ArbitraryChunkMut<'a, T: 'a> {
+pub struct ArbitraryChunkMut<'a, 'b, T: 'a> {
     data: &'a mut [T],
-    counts: &'a [usize],
+    counts: &'b [usize],
     cursor: usize,
 }
 
-impl<'a, T> Iterator for ArbitraryChunkMut<'a, T> {
+impl<'a, 'b, T> Iterator for ArbitraryChunkMut<'a, 'b, T> {
     type Item = &'a mut [T];
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -133,13 +133,13 @@ impl<'a, T> Iterator for ArbitraryChunkMut<'a, T> {
     }
 }
 
-pub struct ArbitraryChunk<'a, T: 'a> {
+pub struct ArbitraryChunk<'a, 'b, T: 'a> {
     data: &'a [T],
-    counts: &'a [usize],
+    counts: &'b [usize],
     cursor: usize,
 }
 
-impl<'a, T> Iterator for ArbitraryChunk<'a, T> {
+impl<'a, 'b, T> Iterator for ArbitraryChunk<'a, 'b, T> {
     type Item = &'a [T];
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -167,13 +167,13 @@ impl<'a, T> Iterator for ArbitraryChunk<'a, T> {
     }
 }
 
-pub struct ArbitraryChunkExactMut<'a, T: 'a> {
+pub struct ArbitraryChunkExactMut<'a, 'b, T: 'a> {
     data: &'a mut [T],
-    counts: &'a [usize],
+    counts: &'b [usize],
     cursor: usize,
 }
 
-impl<'a, T> Iterator for ArbitraryChunkExactMut<'a, T> {
+impl<'a, 'b, T> Iterator for ArbitraryChunkExactMut<'a, 'b, T> {
     type Item = &'a mut [T];
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -200,19 +200,19 @@ impl<'a, T> Iterator for ArbitraryChunkExactMut<'a, T> {
     }
 }
 
-impl<'a, T> ArbitraryChunkExactMut<'a, T> {
+impl<'a, 'b, T> ArbitraryChunkExactMut<'a, 'b, T> {
     pub fn remainder(&'a mut self) -> &'a mut [T] {
         self.data
     }
 }
 
-pub struct ArbitraryChunkExact<'a, T: 'a> {
+pub struct ArbitraryChunkExact<'a, 'b, T: 'a> {
     data: &'a [T],
-    counts: &'a [usize],
+    counts: &'b [usize],
     cursor: usize,
 }
 
-impl<'a, T> Iterator for ArbitraryChunkExact<'a, T> {
+impl<'a, 'b, T> Iterator for ArbitraryChunkExact<'a, 'b, T> {
     type Item = &'a [T];
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -239,13 +239,13 @@ impl<'a, T> Iterator for ArbitraryChunkExact<'a, T> {
     }
 }
 
-impl<'a, T> ArbitraryChunkExact<'a, T> {
+impl<'a, 'b, T> ArbitraryChunkExact<'a, 'b, T> {
     pub fn remainder(&'a self) -> &'a [T] {
         self.data
     }
 }
 
-pub trait ArbitraryChunks<'a, T> {
+pub trait ArbitraryChunks<'a, 'b, T> {
     /// `arbitrary_chunks` returns an iterator over chunks of sizes defined in `counts`.
     ///
     /// ```rust
@@ -263,7 +263,7 @@ pub trait ArbitraryChunks<'a, T> {
     /// assert_eq!(vec![1, 2, 3], chunked_data[1]);
     /// assert_eq!(vec![4], chunked_data[2]);
     /// ```
-    fn arbitrary_chunks(&'a self, counts: &'a [usize]) -> ArbitraryChunk<'a, T>;
+    fn arbitrary_chunks(&'a self, counts: &'b [usize]) -> ArbitraryChunk<'a, 'b, T>;
 
     /// `arbitrary_chunks_mut` returns an iterator over mutable chunks of sizes defined in `counts`.
     ///
@@ -281,7 +281,7 @@ pub trait ArbitraryChunks<'a, T> {
     ///
     /// assert_eq!(vec![0, 2, 2, 3, 8], data);
     /// ```
-    fn arbitrary_chunks_mut(&'a mut self, counts: &'a [usize]) -> ArbitraryChunkMut<'a, T>;
+    fn arbitrary_chunks_mut(&'a mut self, counts: &'b [usize]) -> ArbitraryChunkMut<'a, 'b, T>;
 
     /// `arbitrary_chunks_exact` returns chunks sized exactly as requested, or not at all.
     /// If there is not enough data to satisfy the chunk, the iterator will end. You will then be
@@ -298,7 +298,7 @@ pub trait ArbitraryChunks<'a, T> {
     /// assert_eq!(None, iter.next());
     /// assert_eq!(vec![1, 2], iter.remainder());
     /// ```
-    fn arbitrary_chunks_exact(&'a self, counts: &'a [usize]) -> ArbitraryChunkExact<'a, T>;
+    fn arbitrary_chunks_exact(&'a self, counts: &'b [usize]) -> ArbitraryChunkExact<'a, 'b, T>;
 
     /// `arbitrary_chunks_exact_mut` returns chunks sized exactly as requested, or not at all.
     /// If there is not enough data to satisfy the chunk, the iterator will end. You will then be
@@ -315,11 +315,11 @@ pub trait ArbitraryChunks<'a, T> {
     /// assert_eq!(None, iter.next());
     /// assert_eq!(vec![1, 2], iter.remainder());
     /// ```
-    fn arbitrary_chunks_exact_mut(&'a mut self, counts: &'a [usize]) -> ArbitraryChunkExactMut<'a, T>;
+    fn arbitrary_chunks_exact_mut(&'a mut self, counts: &'b [usize]) -> ArbitraryChunkExactMut<'a, 'b, T>;
 }
 
-impl<'a, T> ArbitraryChunks<'a, T> for [T] {
-    fn arbitrary_chunks(&'a self, counts: &'a [usize]) -> ArbitraryChunk<'a, T> {
+impl<'a, 'b, T> ArbitraryChunks<'a, 'b, T> for [T] {
+    fn arbitrary_chunks(&'a self, counts: &'b [usize]) -> ArbitraryChunk<'a, 'b, T> {
         ArbitraryChunk {
             data: self,
             counts,
@@ -327,7 +327,7 @@ impl<'a, T> ArbitraryChunks<'a, T> for [T] {
         }
     }
 
-    fn arbitrary_chunks_mut(&'a mut self, counts: &'a [usize]) -> ArbitraryChunkMut<'a, T> {
+    fn arbitrary_chunks_mut(&'a mut self, counts: &'b [usize]) -> ArbitraryChunkMut<'a, 'b, T> {
         ArbitraryChunkMut {
             data: self,
             counts,
@@ -335,7 +335,7 @@ impl<'a, T> ArbitraryChunks<'a, T> for [T] {
         }
     }
 
-    fn arbitrary_chunks_exact(&'a self, counts: &'a [usize]) -> ArbitraryChunkExact<'a, T> {
+    fn arbitrary_chunks_exact(&'a self, counts: &'b [usize]) -> ArbitraryChunkExact<'a, 'b, T> {
         ArbitraryChunkExact {
             data: self,
             counts,
@@ -343,7 +343,7 @@ impl<'a, T> ArbitraryChunks<'a, T> for [T] {
         }
     }
 
-    fn arbitrary_chunks_exact_mut(&'a mut self, counts: &'a [usize]) -> ArbitraryChunkExactMut<'a, T> {
+    fn arbitrary_chunks_exact_mut(&'a mut self, counts: &'b [usize]) -> ArbitraryChunkExactMut<'a, 'b, T> {
         ArbitraryChunkExactMut {
             data: self,
             counts,
