@@ -7,7 +7,7 @@ An iterator that allows specifying an input array of arbitrary chunk-sizes with 
 
 ## Usage
 
-By default, this iterator is implemented for `[T]`, meaning it works for both arrays and Vec of any type. Chunks must be an owned `Vec<usize>`.
+By default, this iterator is implemented for `[T]`, meaning it works for both arrays and Vec of any type.
 
 If there is not enough data to satisfy the provided chunk length, you will get all the remaining data for that chunk, so it will be shorter than expected. To instead stop early if there is not enough data, see the `.arbitrary_chunks_exact()` variant.
 
@@ -18,7 +18,7 @@ let chunks: Vec<usize> = vec![1, 3, 1];
 let data: Vec<i32> = vec![0, 1, 2, 3, 4];
 
 let chunked_data: Vec<Vec<i32>> = data
-    .arbitrary_chunks(chunks)
+    .arbitrary_chunks(&chunks)
     .map(|chunk| chunk.to_vec())
     .collect();
 
@@ -36,7 +36,7 @@ use arbitrary_chunks::ArbitraryChunks;
 
 let chunks: Vec<usize> = vec![1, 3];
 let data: Vec<i32> = vec![0, 1, 2];
-let mut iter = data.arbitrary_chunks_exact(chunks);
+let mut iter = data.arbitrary_chunks_exact(&chunks);
 
 assert_eq!(vec![0], iter.next().unwrap());
 assert_eq!(None, iter.next());
@@ -53,8 +53,8 @@ use arbitrary_chunks::ArbitraryChunks;
 let chunks: Vec<usize> = vec![1, 3, 1];
 let data: Vec<i32> = vec![0, 1, 2, 3, 4];
 
-let iter_1 = data.arbitrary_chunks_mut(chunks.clone());
-let iter_2 = data.arbitrary_chunks_exact_mut(chunks);
+let iter_1 = data.arbitrary_chunks_mut(&chunks);
+let iter_2 = data.arbitrary_chunks_exact_mut(&chunks);
 ```
 
 ### Parallel Iterator
@@ -69,7 +69,7 @@ let chunks: Vec<usize> = vec![1, 3, 1];
 let data: Vec<i32> = vec![0, 1, 2, 3, 4];
 
 data
-    .arbitrary_chunks(chunks)
+    .arbitrary_chunks(&chunks)
     .par_bridge()
     .for_each(|chunk| {
         assert!(chunk.len() >= 1 && chunk.len() <= 3);
