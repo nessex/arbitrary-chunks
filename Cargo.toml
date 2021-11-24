@@ -1,7 +1,7 @@
 [package]
 name = "arbitrary-chunks"
 description = "An iterator that allows specifying an input array of arbitrary chunk-sizes with which to split a vector or array."
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Nathan Essex <nathan@essex.id.au>"]
 edition = "2018"
 license = "Apache-2.0 OR MIT"
