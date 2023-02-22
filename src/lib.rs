@@ -131,6 +131,11 @@ impl<'a, 'b, T> Iterator for ArbitraryChunkMut<'a, 'b, T> {
 
         Some(l)
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.counts.len() - self.cursor;
+        (remaining, Some(remaining))
+    }
 }
 
 pub struct ArbitraryChunk<'a, 'b, T: 'a> {
@@ -165,6 +170,11 @@ impl<'a, 'b, T> Iterator for ArbitraryChunk<'a, 'b, T> {
 
         Some(l)
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.counts.len() - self.cursor;
+        (remaining, Some(remaining))
+    }
 }
 
 pub struct ArbitraryChunkExactMut<'a, 'b, T: 'a> {
@@ -197,6 +207,11 @@ impl<'a, 'b, T> Iterator for ArbitraryChunkExactMut<'a, 'b, T> {
         self.data = r;
 
         Some(l)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.counts.len() - self.cursor;
+        (remaining, Some(remaining))
     }
 }
 
@@ -236,6 +251,11 @@ impl<'a, 'b, T> Iterator for ArbitraryChunkExact<'a, 'b, T> {
         self.data = r;
 
         Some(l)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.counts.len() - self.cursor;
+        (remaining, Some(remaining))
     }
 }
 
